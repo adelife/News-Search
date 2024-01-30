@@ -8,7 +8,7 @@ function getNews(query, page = 1){
             apiKey: API_KEY,
             q: query,
             language: "en",
-            pageSize:6,
+            pageSize:20,
             page,
         }
     })

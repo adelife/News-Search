@@ -18,11 +18,12 @@ const refs = {
   searchForm: document.querySelector(".search-form"),
   articlesContainer: document.querySelector(".articles"),
   loadMoreBtn: document.querySelector('[data-action="load-more"]'),
-  preloader: document.getElementById("preloader"),
+  preloader: document.querySelector("#preloader"),
 };
 const hiddenClass=  "is-hidden";
 let query = "";
 let page = 1;
+let maxPage = 0;
 
 // обʼєкт з інформацією, яка нам потрібна для запиту
 // const queryParams = {
@@ -45,7 +46,8 @@ async function handleSearch(event){
         return;    //раннє повернення
     }
 try {
-    const {articles} = await getNews(query);
+    const { articles } = await getNews(query);
+    
     appendArticlesMarkup(articles, refs.articlesContainer);
 if(articles.length > 0){
     refs.loadMoreBtn.classList.remove(hiddenClass);
@@ -54,7 +56,7 @@ if(articles.length > 0){
     refs.loadMoreBtn.classList.add(hiddenClass);
     
 
-
+ 
 }
 
 
@@ -68,12 +70,28 @@ if(articles.length > 0){
    
 
 async function handleLoadMore(){
+   
     page += 1
+refs.preloader.classList.remove(hiddenClass);
+refs.loadMoreBtn.disabled = true;
+
     try {
-        const {articles} = await getNews(query, page);
+        const {articles, totalResults} = await getNews(query, page);
+        
+        maxPage = Math.ceil(totalResults/ 20);
         appendArticlesMarkup(articles, refs.articlesContainer);
 }catch (error) {
     console.log(error);
+}finally{
+    refs.preloader.classList.add(hiddenClass);
+    refs.loadMoreBtn.disabled = false;
+
+   if(page === maxPage){
+    refs.loadMoreBtn.classList.add(hiddenClass);
+    refs.loadMoreBtn.removeEventListener("click", handleLoadMore)
+   }
 }
 }
+    
 }
+
